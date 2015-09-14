@@ -2,6 +2,7 @@ import os
 import shutil
 import random
 import Image
+import subprocess, re
 
 class extract(object):
     def __init__(self, path, fps = None, size = None):
@@ -10,7 +11,7 @@ class extract(object):
         self.output = "/tmp/{0}".format(self.key)
         self.path = path
         try:
-            os.makedirs(self.output) 
+            os.makedirs(self.output)
         except:
             pass
 
@@ -42,3 +43,16 @@ class extract(object):
     def __iter__(self):
         for i in range(len(self)):
             yield self[i]
+
+class info:
+    def get_size(self, path):
+        pattern = re.compile(r'Stream.*Video.* (\d+)x(\d+)')
+        p = subprocess.Popen(['ffmpeg', '-i', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        match = pattern.search(stderr)
+        if match:
+            # print match.groups()
+            x, y = map(int, match.groups()[0:2])
+        else:
+            x = y = 0
+        return x, y
